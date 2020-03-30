@@ -108,13 +108,16 @@ jobs:
       arguments: install --tool-path tools dotnet-reportgenerator-globaltool 
     displayName: Install ReportGenerator tool
   - script: |
-      tools/reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:Cobertura
+      tools/reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage "-reporttypes:Cobertura;HtmlSummary" "-title:.Net Standard Test Coverage" "-assemblyfilters:-*.Tests"
+      cp $(Build.SourcesDirectory)/CodeCoverage/summary.htm $(Build.SourcesDirectory)/CodeCoverage/index.htm 
 
     displayName: Create Code coverage report
     condition: eq(variables['agent'], 'linux')
+    continueOnError: true
   - task: PublishCodeCoverageResults@1
     condition: eq(variables['agent'], 'linux')
     displayName: 'Publish code coverage'
     inputs:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
+      reportDirectory: '$(Build.SourcesDirectory)/CodeCoverage'
